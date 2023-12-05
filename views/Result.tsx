@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { ResultScreenProps } from "../types";
 
 export const Result: React.FC<ResultScreenProps> = (props) => {
-    console.log(props.route.params.get('points'))
     return (
         <View style={styles.container}>
             <Text style={styles.resultText}>You got {props.route.params.get('points')} points</Text>

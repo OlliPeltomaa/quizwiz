@@ -1,13 +1,11 @@
-import { View, Text, StyleSheet, Pressable, Animated, Easing } from "react-native";
+import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
 import { GameScreenProps, Question } from "../types";
 import { useEffect, useState } from "react";
-import Timer from "../components/Timer";
 
 export const Game: React.FC<GameScreenProps> = (props) => {
     const [questions, setQuestions] = useState<Array<Question>>([]);
     const [currentIndex, setIndex] = useState<number>(0);
     const [points, setPoints] = useState<number>(0);
-    const [time, setTime] = useState<number>((190));
     const [quizEnded, setQuizEnded] = useState<boolean>(false);
 
     // select 10 questions randomly from available questions and put the options in random order
@@ -38,7 +36,7 @@ export const Game: React.FC<GameScreenProps> = (props) => {
     }
 
     const checkAnswer = (answer: string) => {
-        // hanle wrong answer
+        // handle wrong answer
         if (answer !== questions[currentIndex].correct) {
             const results: Map<string, number> = new Map<string, number>();
             results.set('points', points);
@@ -50,51 +48,30 @@ export const Game: React.FC<GameScreenProps> = (props) => {
 
         // handle last question
         if (currentIndex === questions.length -1) {
+            let finalPoints = points
+            if (answer === questions[currentIndex].correct) {
+                finalPoints +=1;
+            }
             const results: Map<string, number> = new Map<string, number>();
-            results.set('points', points);
+            results.set('points', finalPoints);
             results.set('correct', currentIndex+1);
             props.navigation.navigate('Result', results)
             return;
         }
 
-        const max = 10000;
-        console.log(time)
-        console.log((time as any)._value)
-        const pts = (max - Number.parseInt(JSON.stringify(time))) / 1000;
-
-        console.log('points', pts)
         setPoints(points+1);
         setIndex(currentIndex+1);
-        resetTimer();
     }
-
-    const resetTimer = () => {
-        setTime(190);
-    };
-
-    const handleTimeUp = () => {
-        setQuizEnded(true);
-        console.log('Time is up')
-        const results: Map<string, number> = new Map<string, number>();
-        results.set('points', points);
-        results.set('correct', currentIndex);
-        props.navigation.navigate('Result', results)
-    };
 
     useEffect(() => {
         const randomQuiz = createRandomQuiz(props.route.params as Array<Question>);
         setQuestions(randomQuiz);
-
-        setInterval(() => {
-            setTime(time-1);
-        }, 10000)
-    }, [])
+    }, []);
     
     return (
         <View style={styles.container}>
             {questions.length > 0 ? (
                 <>
-                    <Timer resetTimer={resetTimer} time={time}/>
                     <Text>{currentIndex+1} / {questions.length}</Text>
                     <Text style={styles.question}>{questions[currentIndex].question}</Text>
                     {questions[currentIndex].options.map((prop, key) => (
